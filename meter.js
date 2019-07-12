@@ -1,39 +1,190 @@
-function Counter() {
-    this.clear();
+// https://repl.it/@tf/BonyWittyChief
+
+// Store as array
+/*
+const years = [
+  // years
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  [
+    // months
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+      // hours
+      [
+        // 0:00
+        1,
+        // 1:00
+        3,
+      ]
+    ]
+  ]
+]
+*/
+
+const years = []
+const maxUnconsolidatedDates = 2
+
+let isLocked = false
+
+/**
+ * Add an array of numbers, ensures current number exists
+ * @param {number} runningTotal Running total
+ * @param {number} currentNumber Current number
+ */
+function additionReducer(runningTotal, currentNumber) {
+    if (currentNumber) {
+        return runningTotal + currentNumber
+    }
+    return runningTotal
 }
 
-/// Clear the counters back to zero
-Counter.prototype.clear = function () {
-    this.count = 0;
-};
+/**
+ * Change date array from arrays of counts within hours,
+ * to an int of number in whole day.
+ * Convert everything prior to maxUnconsolidatedDates dates ago.
+ */
+function consolidate() {
+    const latestYearIndex = years.length - 1
+    const latestMonthIndex = years[latestYearIndex].length - 1
+    const latestDateIndex = years[latestYearIndex][latestMonthIndex].length - 1
 
-Counter.prototype.increment = function () {
-    this.count++;
-};
+    // Consolidate the previous full day
+    if (latestDateIndex > maxUnconsolidatedDates) {
+        const date = years[latestYearIndex][latestMonthIndex][latestDateIndex - maxUnconsolidatedDates]
 
-var c = new Counter();
+        if (!date) {
+            return
+        }
 
-// Update BLE advertising
+        years[latestYearIndex][latestMonthIndex][latestDateIndex - maxUnconsolidatedDates] = date.reduce(additionReducer, 0)
+    } else {
+        // Is previous month
+        if (latestMonthIndex > 0) {
+            const dateIndex = years[latestYearIndex][latestMonthIndex - 1].length - maxUnconsolidatedDates + latestDateIndex - 1
+
+            const prevMonthDate = years[latestYearIndex][latestMonthIndex - 1][dateIndex]
+
+            if (!prevMonthDate) {
+                return
+            }
+
+            years[latestYearIndex][latestMonthIndex - 1][dateIndex] = prevMonthDate.reduce(additionReducer, 0)
+        } else {
+            const dateIndex = 31 - maxUnconsolidatedDates + latestDateIndex
+            // Is previous year
+            years[latestYearIndex - 1][11][dateIndex] = years[latestYearIndex - 1][11][dateIndex].reduce(additionReducer, 0)
+        }
+    }
+}
+
+/**
+ * Get the last 2 digits of full year
+ * @param {number} year Year to parse
+ * @return {number}
+ */
+function getYear(year) {
+    return parseInt(year.toString().substr(-2))
+}
+
+/**
+ * Increment count, create new year, month, date, hour as needed
+ */
+function increment() {
+    const d = new Date()
+    const hour = d.getHours()
+    const date = d.getDate()
+    const month = d.getMonth()
+    const year = d.getFullYear()
+
+    // 2-digit year, as number
+    const yr = getYear(year)
+
+    if (years[yr]) {
+        if (years[yr][month]) {
+            if (years[yr][month][date]) {
+                if (years[yr][month][date][hour]) {
+                    years[yr][month][date][hour]++
+                } else {
+                    // No hour in current date
+                    years[yr][month][date][hour] = 1
+                }
+            } else {
+                // No date in current month
+                years[yr][month][date] = []
+                years[yr][month][date][hour] = 1
+
+                // Consolidate previous dates
+                consolidate()
+            }
+        } else {
+            // No month in current year
+            years[yr][month] = []
+            years[yr][month][date] = []
+            years[yr][month][date][hour] = 1
+
+            // Consolidate previous dates
+            consolidate()
+        }
+    } else {
+        // Current year not yet created
+        years[yr] = []
+        years[yr][month] = []
+        years[yr][month][date] = []
+        years[yr][month][date][hour] = 1
+
+        // Consolidate previous dates
+        consolidate()
+    }
+}
+
+/**
+ * Watch fires an update
+ */
 function update() {
-    var a = new ArrayBuffer(4);
-    var d = new DataView(a);
-    d.setUint32(0, c.count, false);
-    NRF.setAdvertising({}, {
-        name: "Puck.js \xE2\x9A\xA1",
-        manufacturer: 0x0590,
-        manufacturerData: a,
-        interval: 600 // default is 375 - save a bit of power
-    });
+    increment()
 }
 
+/**
+ * Initialization function
+ */
 function onInit() {
-    clearWatch();
-    D1.write(0);
-    pinMode(D2, "input_pullup");
+    clearWatch()
+    D1.write(0)
+    pinMode(D2, 'input_pullup')
     setWatch(function (e) {
-        c.increment();
-        update();
-        digitalPulse(LED1, 1, 1); // show activity
-    }, D2, { repeat: true, edge: "falling" });
-    update();
+        if (!isLocked) {
+            isLocked = true
+
+            update()
+            digitalPulse(LED1, 1, 1) // Show activity
+
+            // Release lock
+            setTimeout(() => {
+                isLocked = false
+            }, 300)
+        }
+    }, D2, { repeat: true, edge: 'falling' })
 }
