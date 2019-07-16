@@ -133,7 +133,7 @@ function increment() {
                 }
             } else {
                 // No date in current month
-                years[yr][month][date] = []
+                years[yr][month][date] = new Int16Array(24)
                 years[yr][month][date][hour] = 1
 
                 // Consolidate previous dates
@@ -142,7 +142,7 @@ function increment() {
         } else {
             // No month in current year
             years[yr][month] = []
-            years[yr][month][date] = []
+            years[yr][month][date] = new Int16Array(24)
             years[yr][month][date][hour] = 1
 
             // Consolidate previous dates
@@ -152,7 +152,7 @@ function increment() {
         // Current year not yet created
         years[yr] = []
         years[yr][month] = []
-        years[yr][month][date] = []
+        years[yr][month][date] = new Int16Array(24)
         years[yr][month][date][hour] = 1
 
         // Consolidate previous dates
@@ -184,7 +184,7 @@ function onInit() {
             // Release lock
             setTimeout(() => {
                 isLocked = false
-            }, 300)
+            }, 100)
         }
     }, D2, { repeat: true, edge: 'falling' })
 }

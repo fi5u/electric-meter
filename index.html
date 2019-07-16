@@ -3,17 +3,35 @@
         <title>Dashboard</title>
         <meta name="viewport" content="initial-scale=1" />
         <link href="./main.css" rel="stylesheet" />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
+            rel="stylesheet"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     </head>
     <body>
         <button id="connect-button" onClick="connectDevice()">Connect</button>
 
         <div id="root">
-            Count: <span id="count">0</span><br />
             Battery: <span id="battery">0</span>%
-            <div id="meter"></div>
+
+            <div id="meter">
+                <div id="meter-buttons">
+                    <button onClick="setDate('yesterday')" type="button">
+                        Yesterday
+                    </button>
+
+                    <button onClick="setDate('today')" type="button">
+                        Today
+                    </button>
+                </div>
+
+                <canvas id="chart" width="400" height="400"></canvas>
+            </div>
         </div>
 
         <script src="https://www.puck-js.com/puck.js"></script>
         <script src="./main.js"></script>
+        <script src="./chart.js"></script>
     </body>
 </html>
