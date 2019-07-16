@@ -1,49 +1,4 @@
 // https://repl.it/@tf/BonyWittyChief
-
-// Store as array
-/*
-const years = [
-  // years
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  [
-    // months
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    [
-      // hours
-      [
-        // 0:00
-        1,
-        // 1:00
-        3,
-      ]
-    ]
-  ]
-]
-*/
-
 const years = []
 const maxUnconsolidatedDates = 2
 
