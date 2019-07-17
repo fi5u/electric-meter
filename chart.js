@@ -1,9 +1,13 @@
 const ctx = document.getElementById('chart')
 
-let data = []
-
-function setDate(date) {
-    // Set active class on button
+/**
+ * Set new date on chart
+ * @param {Array} data Data to output
+ * @param {string} date
+ * @param {'day' | 'month'} timeframe
+ */
+function setChartDate(data, date, timeframe) {
+    // Set active class on current date button
     const meterButtons = document.querySelectorAll('#meter-buttons > button')
     if (meterButtons) {
         meterButtons.forEach(button => {
@@ -15,22 +19,26 @@ function setDate(date) {
         })
     }
 
-    // Set the chart data and output chart
-    if (date === 'today' || date === 'yesterday') {
-        data = window.usageData[date]
-
-        outputChart()
+    // Set active class on current timeframe button
+    const timeframeButtons = document.querySelectorAll('#timeframe-buttons > button')
+    if (timeframeButtons) {
+        timeframeButtons.forEach(button => {
+            if (button.textContent.trim().toLowerCase() === timeframe) {
+                button.classList.add('active')
+            } else {
+                button.classList.remove('active')
+            }
+        })
     }
+
+    outputChart(data)
 }
 
-function outputChart() {
-    /*
-    const currentYearData = data[data.length - 1]
-    const currentMonthData = currentYearData[currentYearData.length - 1]
-    const currentDateData = currentMonthData[currentMonthData.length - 1]
-    const currentHourData = currentDateData[currentDateData.length - 1]
-    */
-
+/**
+ * Output a chart
+ * @param {Array} data Data to output
+ */
+function outputChart(data) {
     new Chart(ctx, {
         data: {
             datasets: [{
@@ -51,11 +59,3 @@ function outputChart() {
         type: 'line',
     });
 }
-
-const connectedInterval = window.setInterval(() => {
-    if (window.dataLoaded) {
-        window.clearInterval(connectedInterval)
-
-        setDate('today')
-    }
-}, 1000)
