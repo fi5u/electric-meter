@@ -35,6 +35,8 @@ function setDate(date) {
         }
     }
 
+    data = data.map(d => d / 1000)
+
     setChartDate(data, currentDate, currentTimeframe)
 }
 
