@@ -35,8 +35,10 @@ function setDate(date) {
         }
     }
 
+    // Convert flashes to kW
     data = data.map(d => d / 1000)
 
+    // Output chart with data
     setChartDate(data, currentDate, currentTimeframe)
 }
 

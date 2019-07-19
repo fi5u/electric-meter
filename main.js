@@ -29,6 +29,6 @@ function connectDevice() {
                     window.usageData = d
                 });
             })
-        }, 1000 * 10);
+        }, 1000 * 15);
     });
 }

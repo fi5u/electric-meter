@@ -34,6 +34,7 @@ function setChartDate(data, date, timeframe) {
     }
 
     outputChart(data, timeframe)
+    setTotal(data)
 }
 
 /**
@@ -62,4 +63,20 @@ function outputChart(data, timeframe) {
         },
         type: 'line',
     });
+}
+
+/**
+ * Set the total used element
+ * @param {Array} data Array of numbers to calculate total
+ */
+function setTotal(data) {
+    const totalElement = document.getElementById('total-kw')
+    if (totalElement) {
+        const total = data.reduce((runningTotal, current) => {
+            return runningTotal + current
+        }, 0)
+
+        // Divide by 1000 to get kW from flashes
+        totalElement.textContent = total / 1000
+    }
 }
