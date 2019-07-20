@@ -76,7 +76,6 @@ function setTotal(data) {
             return runningTotal + current
         }, 0)
 
-        // Divide by 1000 to get kW from flashes
-        totalElement.textContent = total / 1000
+        totalElement.textContent = Math.round(total, 2)
     }
 }
