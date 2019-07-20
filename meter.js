@@ -36,20 +36,20 @@ function increment() {
                 }
             } else {
                 // No date in current month
-                years[yr][month][date] = new Int16Array(24)
+                years[yr][month][date] = []
                 years[yr][month][date][hour] = 1
             }
         } else {
             // No month in current year
             years[yr][month] = []
-            years[yr][month][date] = new Int16Array(24)
+            years[yr][month][date] = []
             years[yr][month][date][hour] = 1
         }
     } else {
         // Current year not yet created
         years[yr] = []
         years[yr][month] = []
-        years[yr][month][date] = new Int16Array(24)
+        years[yr][month][date] = []
         years[yr][month][date][hour] = 1
     }
 }
