@@ -1,3 +1,9 @@
+const savedYears = window.localStorage.getItem('years')
+
+if (savedYears) {
+    window.savedUsageData = JSON.parse(savedYears)
+}
+
 function connectDevice() {
     const button = document.getElementById('connect-button')
 
@@ -9,10 +15,9 @@ function connectDevice() {
     Puck.write("\x03", function () {
         setTimeout(function () {
             // After a short delay ask for the battery percentage
-            Puck.eval("{bat:Puck.getBatteryPercentage()}", function (d, batteryError) {
-                if (!d || batteryError) {
+            Puck.eval('E.getBattery()', function (d) {
+                if (!d) {
                     console.log('Battery error:')
-                    console.log(batteryError)
                     button.textContent = 'Failed to connect'
                     return
                 }
@@ -21,14 +26,15 @@ function connectDevice() {
 
                 // Update battery meter
                 const batteryEl = document.getElementById('battery')
-                batteryEl.textContent = d.bat
-                battery.level = d.bat
+                batteryEl.textContent = d
+                battery.level = d
 
                 Puck.eval('years', function (d) {
                     console.log(d)
                     window.usageData = d
+                    window.localStorage.setItem('years', JSON.stringify(d))
                 });
             })
-        }, 1000 * 15);
+        }, 1000 * 10);
     });
 }
