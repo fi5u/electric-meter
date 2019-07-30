@@ -1,11 +1,13 @@
 let currentDate = 'today'
 let currentTimeframe = 'day'
+let hasSavedUsageData = false
 
 /**
  * Set a new active date
  * @param {string} date
  */
 function setDate(date) {
+    const currentDataSet = window.usageData || window.savedUsageData
     let data
 
     if (typeof date === 'string') {
@@ -16,7 +18,7 @@ function setDate(date) {
 
         currentDate = date
 
-        const latestYearData = window.usageData[window.usageData.length - 1]
+        const latestYearData = currentDataSet[currentDataSet.length - 1]
         const latestMonthData = latestYearData[latestYearData.length - 1]
 
         if (date === 'today') {
@@ -31,7 +33,7 @@ function setDate(date) {
                     // Yesterday in previous month in same year
                     ? latestYearData[latestYearData.length - 2][latestYearData[latestYearData.length - 2].length - 1]
                     // Yesterday in Dec in previous year
-                    : window.usageData[window.usageData.length - 2][11][30]
+                    : currentDataSet[currentDataSet.length - 2][11][30]
         }
     }
 
@@ -51,6 +53,12 @@ function setTimeframe(timeframe) {
 }
 
 const connectedInterval = window.setInterval(() => {
+    if (window.savedUsageData && !hasSavedUsageData) {
+        hasSavedUsageData = true
+        // Note: this may not be today, need to fix
+        setDate('today')
+    }
+
     if (window.usageData) {
         window.clearInterval(connectedInterval)
 
