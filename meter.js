@@ -1,6 +1,5 @@
 // https://repl.it/@tf/BonyWittyChief
 const years = []
-let isLocked = false
 
 
 /**
@@ -36,20 +35,20 @@ function increment() {
                 }
             } else {
                 // No date in current month
-                years[yr][month][date] = []
+                years[yr][month][date] = new Uint16Array(24)
                 years[yr][month][date][hour] = 1
             }
         } else {
             // No month in current year
             years[yr][month] = []
-            years[yr][month][date] = []
+            years[yr][month][date] = new Uint16Array(24)
             years[yr][month][date][hour] = 1
         }
     } else {
         // Current year not yet created
         years[yr] = []
         years[yr][month] = []
-        years[yr][month][date] = []
+        years[yr][month][date] = new Uint16Array(24)
         years[yr][month][date][hour] = 1
     }
 }
@@ -69,16 +68,7 @@ function onInit() {
     D1.write(0)
     pinMode(D2, 'input_pullup')
     setWatch(function (e) {
-        if (!isLocked) {
-            isLocked = true
-
-            update()
-            digitalPulse(LED1, 1, 1) // Show activity
-
-            // Release lock
-            setTimeout(() => {
-                isLocked = false
-            }, 100)
-        }
+        update()
+        digitalPulse(LED1, 1, 1) // Show activity
     }, D2, { repeat: true, edge: 'falling' })
 }
