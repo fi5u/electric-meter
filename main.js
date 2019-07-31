@@ -15,8 +15,8 @@ function connectDevice() {
     Puck.write("\x03", function () {
         setTimeout(function () {
             // After a short delay ask for the battery percentage
-            Puck.eval('E.getBattery()', function (d) {
-                if (!d) {
+            Puck.eval('E.getBattery()', function (batteryPercentage) {
+                if (!batteryPercentage) {
                     console.log('Battery error:')
                     button.textContent = 'Failed to connect'
                     return
@@ -25,9 +25,10 @@ function connectDevice() {
                 button.textContent = 'Connected'
 
                 // Update battery meter
-                const batteryEl = document.getElementById('battery')
-                batteryEl.textContent = d
-                battery.level = d
+                const batteryEl = document.getElementById('battery-container')
+                batteryEl.textContent = `Battery: ${batteryPercentage}%`
+
+                document.documentElement.classList.remove('not-connected')
 
                 Puck.eval('years', function (d) {
                     console.log(d)
@@ -36,7 +37,6 @@ function connectDevice() {
                 });
 
                 Puck.eval('currentkWh', function (currentkWh) {
-                    console.log(currentkWh)
                     window.currentkWh = currentkWh
                 })
             })

@@ -92,6 +92,7 @@ function generateElements(i, key, container, isChecked) {
 
     const label = document.createElement('label')
     label.htmlFor = `${key}-${value}`
+    label.className = `uk-button uk-button-${isChecked ? 'primary uk-disabled' : 'default'} uk-flex-1`
     label.textContent = key === 'month' ? getMonth(value) : value
 
     container.appendChild(radio)
@@ -163,6 +164,12 @@ function outputMeterButtons(data, date) {
     }
 }
 
+/**
+ * Set up date selector buttons and fetch data for date
+ * @param {number} [date.year]
+ * @param {number} [date.month]
+ * @param {number} [date.date]
+ */
 function setButtonsAndData(date) {
     outputMeterButtons(window.usageData || window.savedUsageData, date)
     setDate(date)
@@ -195,7 +202,7 @@ function setTimeframe(timeframe) {
  */
 function setCurrentUsage() {
     const element = document.getElementById('current-usage')
-    element.textContent = `Current energy usage: ${window.currentkWh} kWh`
+    element.textContent = `Current: ${window.currentkWh} kWh`
 }
 
 // Interval to check if data has loaded

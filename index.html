@@ -1,8 +1,12 @@
-<html>
+<html class="not-connected">
     <head>
         <title>Dashboard</title>
         <meta name="viewport" content="initial-scale=1" />
         <link href="./main.css" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/css/uikit.min.css"
+        />
         <link
             href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
             rel="stylesheet"
@@ -10,36 +14,54 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     </head>
     <body>
-        <button id="connect-button" onClick="connectDevice()">Connect</button>
-
         <div id="root">
-            Battery: <span id="battery">0</span>%
+            <button
+                class="uk-width-1-1 uk-button uk-button-primary"
+                id="connect-button"
+                onClick="connectDevice()"
+            >
+                Connect
+            </button>
 
-            <div id="current-usage"></div>
-
-            <div id="meter">
-                <div id="timeframe-buttons">
-                    <button>
-                        Month
-                    </button>
-
-                    <button>
-                        Day
-                    </button>
+            <div class="uk-flex uk-button-group" id="stats">
+                <div
+                    class="uk-flex-1 uk-tile uk-tile-muted uk-tile-small uk-text-center"
+                    id="battery"
+                >
+                    <span id="battery-container"></span>
                 </div>
-
-                <div id="meter-buttons">
-                    <div id="meter-buttons-year"></div>
-                    <div id="meter-buttons-month"></div>
-                    <div id="meter-buttons-date"></div>
-                </div>
-
-                <div>Total: <span id="total-kw"></span> kW</div>
 
                 <div
-                    class="chart-container"
-                    style="position: relative; height:40vh; width:90vw;"
-                >
+                    class="uk-flex-1 uk-tile uk-tile-muted uk-tile-small uk-text-center"
+                    id="current-usage"
+                ></div>
+
+                <div
+                    class="uk-flex-1 uk-tile uk-tile-muted uk-tile-small uk-text-center"
+                    id="total-kw"
+                ></div>
+            </div>
+
+            <div id="meter">
+                <div id="meter-buttons">
+                    <div
+                        class="uk-flex-stretch uk-subnav uk-subnav-pill"
+                        uk-switcher
+                        id="meter-buttons-year"
+                    ></div>
+                    <div
+                        class="uk-flex-stretch uk-subnav uk-subnav-pill"
+                        uk-switcher
+                        id="meter-buttons-month"
+                    ></div>
+                    <div
+                        class="uk-flex-stretch uk-subnav uk-subnav-pill"
+                        uk-switcher
+                        id="meter-buttons-date"
+                    ></div>
+                </div>
+
+                <div class="uk-container uk-margin-top chart-container">
                     <canvas id="chart"></canvas>
                 </div>
             </div>

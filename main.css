@@ -1,3 +1,18 @@
-#meter-buttons .active {
-    color: red;
+#root {
+    margin: 0 auto;
+    max-width: 960px;
+    width: 100%;
+}
+
+.not-connected #battery,
+.not-connected #current-usage {
+    display: none;
+}
+
+#meter-buttons input {
+    display: none;
+}
+
+#meter-buttons > div {
+    margin-left: 0;
 }
