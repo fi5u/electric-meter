@@ -5,34 +5,9 @@ const dayAxis = ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00',
 /**
  * Set new date on chart
  * @param {Array} data Data to output
- * @param {string} date
  * @param {'day' | 'month'} timeframe
  */
-function setChartDate(data, date, timeframe) {
-    // Set active class on current date button
-    const meterButtons = document.querySelectorAll('#meter-buttons > button')
-    if (meterButtons) {
-        meterButtons.forEach(button => {
-            if (button.textContent.trim().toLowerCase() === date) {
-                button.classList.add('active')
-            } else {
-                button.classList.remove('active')
-            }
-        })
-    }
-
-    // Set active class on current timeframe button
-    const timeframeButtons = document.querySelectorAll('#timeframe-buttons > button')
-    if (timeframeButtons) {
-        timeframeButtons.forEach(button => {
-            if (button.textContent.trim().toLowerCase() === timeframe) {
-                button.classList.add('active')
-            } else {
-                button.classList.remove('active')
-            }
-        })
-    }
-
+function setChartDate(data, timeframe) {
     outputChart(data, timeframe)
     setTotal(data)
 }
