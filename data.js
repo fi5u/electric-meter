@@ -190,6 +190,14 @@ function setTimeframe(timeframe) {
     currentTimeframe = timeframe
 }
 
+/**
+ * Update the DOM with the current energy usage
+ */
+function setCurrentUsage() {
+    const element = document.getElementById('current-usage')
+    element.textContent = `Current energy usage: ${window.currentkWh} kWh`
+}
+
 // Interval to check if data has loaded
 const connectedInterval = window.setInterval(() => {
     if (window.savedUsageData && !hasSavedUsageData) {
@@ -209,5 +217,13 @@ const connectedInterval = window.setInterval(() => {
         outputMeterButtons(window.usageData)
         // Set the date to the latest date from fresh data
         setDate()
+
+        const curUsageDataInterval = window.setInterval(() => {
+            if (window.currentkWh) {
+                window.clearInterval(curUsageDataInterval)
+
+                setCurrentUsage()
+            }
+        }, 1000)
     }
 }, 1000)

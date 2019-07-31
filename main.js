@@ -34,6 +34,11 @@ function connectDevice() {
                     window.usageData = d
                     window.localStorage.setItem('years', JSON.stringify(d))
                 });
+
+                Puck.eval('currentkWh', function (currentkWh) {
+                    console.log(currentkWh)
+                    window.currentkWh = currentkWh
+                })
             })
         }, 1000 * 10);
     });

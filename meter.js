@@ -1,5 +1,7 @@
 // https://repl.it/@tf/BonyWittyChief
 const years = []
+let lastFlashTime = Date.now()
+let currentkWh = 0
 
 
 /**
@@ -54,10 +56,26 @@ function increment() {
 }
 
 /**
+ * Set the current usage in kWh from timings of flashes
+ */
+function setCurrentUsage() {
+    const currentTime = Date.now()
+    const diffMs = currentTime - lastFlashTime
+    const diffSec = diffMs / 1000
+
+    const kWh = (3600 / diffSec) * 0.001
+    const decimalPlaces = 2
+
+    currentkWh = Number(Math.round(kWh + 'e' + decimalPlaces) + 'e-' + decimalPlaces)
+    lastFlashTime = currentTime
+}
+
+/**
  * Watch fires an update
  */
 function update() {
     increment()
+    setCurrentUsage()
 }
 
 /**
