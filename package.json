@@ -1,0 +1,12 @@
+{
+  "name": "electric-meter",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": "https://github.com/fi5u/electric-meter.git",
+  "author": "Tommy Fisher <tommybfisher@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
