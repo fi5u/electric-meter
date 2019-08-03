@@ -5,40 +5,47 @@ const app = express()
 const port = 3456
 const path = require('path')
 
+const cloudConfig = {
+    endpoint: process.env.CLOUD_ENDPOINT,
+    apiKeyId: process.env.CLOUD_API_KEY,
+    ibmAuthEndpoint: 'https://iam.cloud.ibm.com/identity/token',
+    serviceInstanceId: process.env.CLOUD_INSTANCE,
+}
+const AWS = require('ibm-cos-sdk')
+const cos = new AWS.S3(cloudConfig)
+
+const { read: readFromCloud, write: wrightToCloud } = require('./server/cloud.js')
+
+app.use(express.json())
 app.use(express.static('./'))
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/index.html')))
 
-app.get('/test', async (req, res) => {
-    const AWS = require('ibm-cos-sdk');
+app.get('/api/historic_data', async (req, res) => {
+    try {
+        const historicData = await readFromCloud(cos, 'tf-electric-meter', 'years')
 
-    const config = {
-        endpoint: process.env.CLOUD_ENDPOINT,
-        apiKeyId: process.env.CLOUD_API_KEY,
-        ibmAuthEndpoint: 'https://iam.cloud.ibm.com/identity/token',
-        serviceInstanceId: process.env.CLOUD_INSTANCE,
+        res.json(historicData)
+    } catch (error) {
+        console.error('Error in GET historic_data:')
+        console.error(error.message)
+
+        res.sendStatus(400)
     }
+})
 
-    const cos = new AWS.S3(config)
+app.post('/api/historic_data', async (req, res) => {
+    try {
+        const { years } = req.body
 
-    async function createTextFile(bucketName, itemName, fileText) {
-        console.log(`Creating new item: ${itemName}`);
-        return cos.putObject({
-            Bucket: bucketName,
-            Key: itemName,
-            Body: fileText
-        }).promise()
-            .then(() => {
-                console.log(`Item: ${itemName} created!`);
-            })
-            .catch((e) => {
-                console.error(`ERROR: ${e.code} - ${e.message}\n`);
-            });
+        await wrightToCloud(cos, 'tf-electric-meter', 'years', JSON.stringify(years))
+        res.sendStatus(200)
+    } catch (error) {
+        console.error('Error in POST historic_data:')
+        console.error(error.message)
+
+        res.sendStatus(400)
     }
-
-    await createTextFile('tf-electric-meter', 'MyTestfile', JSON.stringify({ a: 123, b: 'Yes', c: ['a', 'b', 'c'] }))
-
-    res.sendStatus(200)
 })
 
 app.listen(port, () => console.log(`Electric meter app listening on port ${port}!`))

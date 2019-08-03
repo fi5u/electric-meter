@@ -1,9 +1,3 @@
-const savedYears = window.localStorage.getItem('years')
-
-if (savedYears) {
-    window.savedUsageData = JSON.parse(savedYears)
-}
-
 function connectDevice() {
     const button = document.getElementById('connect-button')
 
@@ -11,7 +5,7 @@ function connectDevice() {
     button.disabled = true
     button.textContent = 'Connecting...'
 
-    // connect, issue Ctrl-C to clear out any data that might have been left in REPL
+    // Connect, issue Ctrl-C to clear out any data that might have been left in REPL
     Puck.write("\x03", function () {
         setTimeout(function () {
             // After a short delay ask for the battery percentage
@@ -30,16 +24,20 @@ function connectDevice() {
 
                 document.documentElement.classList.remove('not-connected')
 
-                Puck.eval('years', function (d) {
-                    console.log(d)
-                    window.usageData = d
-                    window.localStorage.setItem('years', JSON.stringify(d))
-                });
+                Puck.eval('years', function (years) {
+                    // Ensure a valid array is returned
+                    if (typeof years !== 'object' || years.length < 20) {
+                        return
+                    }
 
-                Puck.eval('currentkWh', function (currentkWh) {
-                    window.currentkWh = currentkWh
-                })
+                    console.log(years)
+                    window.usageData = years
+
+                    Puck.eval('currentkWh', function (currentkWh) {
+                        window.currentkWh = currentkWh
+                    })
+                });
             })
-        }, 1000 * 10);
+        }, 1000 * 2);
     });
 }

@@ -1,6 +1,6 @@
 // https://repl.it/@tf/BonyWittyChief
-const years = []
-let lastFlashTime = Date.now()
+const years = [];
+let lastFlashTime = Date.now();
 let currentkWh = 0
 
 

@@ -1,6 +1,14 @@
 let currentTimeframe = 'day'
 let hasSavedUsageData = false
 
+async function dataInit() {
+    const historicData = await fetchHistoricData()
+
+    if (historicData) {
+        window.savedUsageData = historicData
+    }
+}
+
 /**
  * Return the name of month from number (1 indexed)
  * @param {number} month Month to fetch
@@ -16,6 +24,84 @@ function getMonth(month) {
  */
 function convertFlashesToKW(flashData) {
     return flashData.map(d => d / 1000)
+}
+
+/**
+ * Fetch historic data from cloud
+ * @return {Array} Historic data
+ */
+async function fetchHistoricData() {
+    try {
+        const response = await fetch('/api/historic_data')
+        const data = await response.json()
+
+        if (!data) {
+            throw new Error('No data returned')
+        }
+
+        return JSON.parse(data)
+    } catch (error) {
+        console.log('Error fetching historic data:')
+        console.log(error.message)
+    }
+}
+
+/**
+ * Save data to cloud
+ * @param {Array} data Data to save to cloud
+ */
+async function saveHistoricData(data) {
+    try {
+        await fetch('/api/historic_data', {
+            body: JSON.stringify(data),
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            }),
+            method: 'POST',
+        })
+    } catch (error) {
+        console.log('Error saving historic data:')
+        console.log(error.message)
+    }
+}
+
+/**
+ * Recursively merge arrays of data
+ * @param {Array} oldData Old array data
+ * @param {Array} newData New array data
+ */
+function generateMergedData(oldData, newData) {
+    const merged = []
+
+    for (let i = 0; i < newData.length; i++) {
+        const current = newData[i]
+
+        // No data or data is identical
+        if (!oldData || current === oldData[i]) {
+            merged[i] = current
+            continue
+        }
+
+        // No current data, but have old, keep the old
+        if (!current && oldData[i]) {
+            merged[i] = oldData[i]
+            continue
+        }
+
+        // Always accept current as latest when number
+        if (typeof current === 'number') {
+            merged[i] = current
+            continue
+        }
+
+        // Is array
+        if (typeof current === 'object') {
+            merged[i] = generateMergedData(oldData[i], current)
+            continue
+        }
+    }
+
+    return merged
 }
 
 /**
@@ -205,6 +291,30 @@ function setCurrentUsage() {
     element.textContent = `Current: ${window.currentkWh} kWh`
 }
 
+/**
+ * Merge current data with historical data, then save to cloud
+ */
+function mergeHistory() {
+    if (!window.usageData) {
+        console.error('No current data, cannot merge history')
+        return
+    }
+
+    const mergedHistory = generateMergedData(window.savedUsageData, window.usageData)
+
+    if (!mergedHistory) {
+        console.error('Merged history could not be generated')
+        return
+    }
+
+    console.log('mergedHistory:')
+    console.log(mergedHistory)
+
+    window.usageData = mergedHistory
+
+    saveHistoricData({ years: mergedHistory })
+}
+
 // Interval to check if data has loaded
 const connectedInterval = window.setInterval(() => {
     if (window.savedUsageData && !hasSavedUsageData) {
@@ -214,14 +324,17 @@ const connectedInterval = window.setInterval(() => {
         outputMeterButtons(window.savedUsageData)
         // Set the date to the latest date from saved data
         setDate()
-
     }
 
     if (window.usageData) {
         window.clearInterval(connectedInterval)
 
+        // Merge new with old history
+        mergeHistory()
+
         // Populate meter buttons using fresh data
         outputMeterButtons(window.usageData)
+
         // Set the date to the latest date from fresh data
         setDate()
 
@@ -234,3 +347,6 @@ const connectedInterval = window.setInterval(() => {
         }, 1000)
     }
 }, 1000)
+
+// Perform initialization tasks
+dataInit()
