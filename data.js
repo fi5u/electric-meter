@@ -1,6 +1,9 @@
 let currentTimeframe = 'day'
 let hasSavedUsageData = false
 
+/**
+ * Initialization functions
+ */
 async function dataInit() {
     const historicData = await fetchHistoricData()
 
@@ -262,6 +265,47 @@ function setButtonsAndData(date) {
 }
 
 /**
+ * Set the classes for buttons
+ * @param {number} [date.year]
+ * @param {number} [date.month]
+ * @param {number} [date.date]
+ */
+function setButtonsState(date) {
+    const container = document.getElementById('meter-buttons')
+
+    if (!container) {
+        return
+    }
+
+    const labels = container.querySelectorAll('label')
+
+    if (!labels) {
+        return
+    }
+
+    // Disable all
+    labels.forEach(label => {
+        label.classList.remove('uk-button-primary')
+        label.classList.remove('uk-disabled')
+        label.classList.add('uk-button-default')
+    })
+
+    // Enable for each key
+    Object.keys(date).forEach(dateKey => {
+        const container = document.getElementById(`meter-buttons-${dateKey}`)
+        if (container) {
+            const element = container.querySelector(`label[for=${dateKey}-${date[dateKey]}]`)
+
+            if (element) {
+                element.classList.remove('uk-button-default')
+                element.classList.add('uk-button-primary')
+                element.classList.add('uk-disabled')
+            }
+        }
+    })
+}
+
+/**
  * Set a new active date
  * @param {number} [date.year]
  * @param {number} [date.month]
@@ -273,6 +317,11 @@ function setDate(date) {
 
     // Output chart with data
     setChartDate(kWData, currentTimeframe)
+
+    // Set button classes
+    if (date) {
+        setButtonsState(date)
+    }
 }
 
 /**
