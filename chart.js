@@ -1,4 +1,5 @@
 const ctx = document.getElementById('chart')
+let chart
 
 const dayAxis = ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00']
 
@@ -18,26 +19,31 @@ function setChartDate(data, timeframe) {
  * @param {'day' | 'month'} timeframe Current timeframe
  */
 function outputChart(data, timeframe) {
-    new Chart(ctx, {
-        data: {
-            datasets: [{
-                backgroundColor: '#39f',
-                data: data,
-                label: 'Energy usage (kW)'
-            }],
-            labels: timeframe === 'day' ? dayAxis : data.map((d, i) => i + 1)
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    ticks: {
-                        min: '0:00'
-                    }
-                }]
-            }
-        },
-        type: 'line',
-    });
+    if (chart) {
+        chart.data.datasets[0].data = data
+        chart.update();
+    } else {
+        chart = new Chart(ctx, {
+            data: {
+                datasets: [{
+                    backgroundColor: '#39f',
+                    data: data,
+                    label: 'Energy usage (kW)'
+                }],
+                labels: timeframe === 'day' ? dayAxis : data.map((d, i) => i + 1)
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            min: '0:00'
+                        }
+                    }]
+                }
+            },
+            type: 'line',
+        })
+    }
 }
 
 /**
