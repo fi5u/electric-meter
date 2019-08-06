@@ -86,7 +86,12 @@ function onInit() {
     D1.write(0)
     pinMode(D2, 'input_pullup')
     setWatch(function (e) {
-        update()
-        digitalPulse(LED1, 1, 1) // Show activity
+        try {
+            update()
+            digitalPulse(LED2, 1, 1) // Green
+        } catch (e) {
+            digitalPulse(LED1, 1, 1) // Red
+            console.log(e);
+        }
     }, D2, { repeat: true, edge: 'falling' })
 }

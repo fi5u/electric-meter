@@ -76,6 +76,10 @@ async function saveHistoricData(data) {
 function generateMergedData(oldData, newData) {
     const merged = []
 
+    if (!newData) {
+        return oldData
+    }
+
     for (let i = 0; i < newData.length; i++) {
         const current = newData[i]
 
@@ -136,7 +140,11 @@ function getData(date) {
         return data[iYear][iMonth][iDate]
     }
 
-    console.log('Date not found in data')
+    if (date.date <= 31) {
+        return getData({ year: date.year, month: date.month, date: date.date + 1 })
+    }
+
+    console.error('Date not found in data')
 }
 
 /**
@@ -162,21 +170,39 @@ function generateElements(i, key, container, isChecked) {
 
     if (isChecked) {
         radio.checked = true
-    }
-
-    if (key === 'date') {
-        // No need to re-output meter buttons when just date changes
-        radio.addEventListener('change', () => setDate({
-            year: getCurrentDatePart('year'),
-            month: getCurrentDatePart('month'),
-            date: i,
-        }))
     } else {
-        radio.addEventListener('change', () => setButtonsAndData({
-            year: key === 'year' ? 2000 + i : getCurrentDatePart('year'),
-            month: key === 'month' ? i + 1 : getCurrentDatePart('month'),
-            date: getCurrentDatePart('date')
-        }))
+        // No event listener needed if checked
+        if (key === 'date') {
+            // No need to re-output meter buttons when just date changes
+            radio.addEventListener('change', () => setDate({
+                year: getCurrentDatePart('year'),
+                month: getCurrentDatePart('month'),
+                date: i,
+            }))
+        } else {
+            const data = window.usageData || window.savedUsageData
+            const year = key === 'year' ? 2000 + i : getCurrentDatePart('year')
+            const month = key === 'month' ? i + 1 : getCurrentDatePart('month')
+            let date = 1
+
+            const yearData = data[year.toString().slice(2)]
+            const monthData = yearData[month - 1]
+
+            if (yearData && monthData) {
+                for (let iDate = date; iDate < monthData.length; iDate++) {
+                    if (monthData[iDate]) {
+                        date = iDate
+                        break
+                    }
+                }
+            }
+
+            radio.addEventListener('change', () => setButtonsAndData({
+                year,
+                month,
+                date,
+            }))
+        }
     }
 
     const label = document.createElement('label')
@@ -221,7 +247,7 @@ function outputMeterButtons(data, date) {
             continue
         }
 
-        generateElements(iYear, 'year', yearContainer, (date && date.year === 2000 + iYear) || iYear === data.length - 1)
+        generateElements(iYear, 'year', yearContainer, (date && date.year === 2000 + iYear) || (!date && iYear === data.length - 1))
 
         if ((date && date.year === iYear) || iYear === data.length - 1) {
             // Output the months of the selected year
@@ -233,19 +259,19 @@ function outputMeterButtons(data, date) {
                     continue
                 }
 
-                generateElements(iMonth, 'month', monthContainer, (date && date.month === iMonth + 1) || iMonth === year.length - 1)
+                generateElements(iMonth, 'month', monthContainer, (date && date.month === iMonth + 1) || (!date && iMonth === year.length - 1))
 
-                if ((date && date.month === iMonth) || iMonth === year.length - 1) {
+                if ((date && date.month === iMonth + 1) || (!date && iMonth === year.length - 1)) {
                     // Output the dates
 
                     for (let iDate = 0; iDate < month.length; iDate++) {
-                        const date = month[iDate]
+                        const currentDate = month[iDate]
 
-                        if (!date) {
+                        if (!currentDate) {
                             continue
                         }
 
-                        generateElements(iDate, 'date', dateContainer, (date && date.date === iDate + 1) || iDate === month.length - 1)
+                        generateElements(iDate, 'date', dateContainer, (date && date.date === iDate + 1) || (!date && iDate === month.length - 1))
                     }
                 }
             }
