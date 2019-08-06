@@ -41,7 +41,7 @@ function outputChart(data, timeframe) {
                     }]
                 }
             },
-            type: 'line',
+            type: 'bar',
         })
     }
 }
