@@ -1,7 +1,8 @@
 // https://repl.it/@tf/BonyWittyChief
-const years = [];
-let lastFlashTime = Date.now();
+let years = []
+let lastFlashTime = Date.now()
 let currentkWh = 0
+let isLocked = false
 
 
 /**
@@ -10,48 +11,73 @@ let currentkWh = 0
  * @return {number}
  */
 function getYear(year) {
-    return parseInt(year.toString().substr(-2))
+    try {
+        return parseInt(year.toString().substr(-2))
+    } catch (error) {
+        console.log('Error in getYear():')
+        console.log(error)
+    }
 }
 
 /**
  * Increment count, create new year, month, date, hour as needed
  */
 function increment() {
-    const d = new Date()
-    const hour = d.getHours()
-    const date = d.getDate()
-    const month = d.getMonth()
-    const year = d.getFullYear()
+    try {
+        let d = new Date()
+        let hour = d.getHours()
+        let date = d.getDate()
+        let month = d.getMonth()
+        let year = d.getFullYear()
 
-    // 2-digit year, as number
-    const yr = getYear(year)
+        // 2-digit year, as number
+        let yr = getYear(year)
 
-    if (years[yr]) {
-        if (years[yr][month]) {
-            if (years[yr][month][date]) {
-                if (years[yr][month][date][hour]) {
-                    years[yr][month][date][hour]++
+        if (years[yr]) {
+            try {
+                if (years[yr][month]) {
+                    try {
+                        if (years[yr][month][date]) {
+                            try {
+                                if (years[yr][month][date][hour]) {
+                                    years[yr][month][date][hour]++
+                                } else {
+                                    // No hour in current date
+                                    years[yr][month][date][hour] = 1
+                                }
+                            } catch (error) {
+                                console.log('Error in increment() hour:')
+                                console.log(error)
+                            }
+                        } else {
+                            // No date in current month
+                            years[yr][month][date] = new Uint16Array(24)
+                            years[yr][month][date][hour] = 1
+                        }
+                    } catch (error) {
+                        console.log('Error in increment() date:')
+                        console.log(error)
+                    }
                 } else {
-                    // No hour in current date
+                    // No month in current year
+                    years[yr][month] = []
+                    years[yr][month][date] = new Uint16Array(24)
                     years[yr][month][date][hour] = 1
                 }
-            } else {
-                // No date in current month
-                years[yr][month][date] = new Uint16Array(24)
-                years[yr][month][date][hour] = 1
+            } catch (error) {
+                console.log('Error in increment() month:')
+                console.log(error)
             }
         } else {
-            // No month in current year
+            // Current year not yet created
+            years[yr] = []
             years[yr][month] = []
             years[yr][month][date] = new Uint16Array(24)
             years[yr][month][date][hour] = 1
         }
-    } else {
-        // Current year not yet created
-        years[yr] = []
-        years[yr][month] = []
-        years[yr][month][date] = new Uint16Array(24)
-        years[yr][month][date][hour] = 1
+    } catch (error) {
+        console.log('Error inside increment():')
+        console.log(error)
     }
 }
 
@@ -59,22 +85,33 @@ function increment() {
  * Set the current usage in kWh from timings of flashes
  */
 function setCurrentUsage() {
-    const currentTime = Date.now()
-    const diffMs = currentTime - lastFlashTime
-    const diffSec = diffMs / 1000
+    try {
+        let currentTime = Date.now()
+        let diffMs = currentTime - lastFlashTime
+        let diffSec = diffMs / 1000
 
-    const kWh = (3600 / diffSec) * 0.001
-    const decimalPlaces = 2
+        let kWh = (3600 / diffSec) * 0.001
+        let decimalPlaces = 2
 
-    currentkWh = Number(Math.round(kWh + 'e' + decimalPlaces) + 'e-' + decimalPlaces)
-    lastFlashTime = currentTime
+        currentkWh = Number(Math.round(kWh + 'e' + decimalPlaces) + 'e-' + decimalPlaces)
+        lastFlashTime = currentTime
+    } catch (error) {
+        console.log('Error in setCurrentUsage:')
+        console.log(error)
+    }
 }
 
 /**
  * Watch fires an update
  */
 function update() {
-    increment()
+    try {
+        increment()
+    } catch (error) {
+        console.log('Error calling increment:')
+        console.log(error)
+    }
+
     setCurrentUsage()
 }
 
@@ -87,11 +124,20 @@ function onInit() {
     pinMode(D2, 'input_pullup')
     setWatch(function (e) {
         try {
+            if (isLocked) {
+                return
+            }
+
+            isLocked = true
             update()
             digitalPulse(LED2, 1, 1) // Green
-        } catch (e) {
+
+            setTimeout(() => {
+                isLocked = false
+            }, 300)
+        } catch (error) {
             digitalPulse(LED1, 1, 1) // Red
-            console.log(e);
+            console.log(error)
         }
     }, D2, { repeat: true, edge: 'falling' })
 }
