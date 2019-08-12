@@ -90,10 +90,8 @@ function setCurrentUsage() {
         let diffMs = currentTime - lastFlashTime
         let diffSec = diffMs / 1000
 
-        let kWh = (3600 / diffSec) * 0.001
-        let decimalPlaces = 2
+        currentkWh = (3600 / diffSec) * 0.001
 
-        currentkWh = Number(Math.round(kWh + 'e' + decimalPlaces) + 'e-' + decimalPlaces)
         lastFlashTime = currentTime
     } catch (error) {
         console.log('Error in setCurrentUsage:')

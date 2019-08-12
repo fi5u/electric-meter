@@ -34,7 +34,7 @@ function connectDevice() {
                     window.usageData = years
 
                     Puck.eval('currentkWh', function (currentkWh) {
-                        window.currentkWh = currentkWh
+                        window.currentkWh = currentkWh.toFixed(2)
                     })
                 });
             })
